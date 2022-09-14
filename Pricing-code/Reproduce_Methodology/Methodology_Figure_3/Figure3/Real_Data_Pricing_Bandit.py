@@ -23,7 +23,7 @@ w,v=LA.eig(mat)
 half=np.dot(v,np.diag(np.sqrt(w)))
 
 
-def AcceptReject_2(b=6,cov=half): #random sample functions
+def AcceptReject_2(b=6,cov=half):                                                   #random sample functions
     while True:
         r=random.uniform(0,1)**(1/3)
         rn=np.random.normal(loc=0.0, scale=1.0, size=3)
@@ -34,8 +34,8 @@ def AcceptReject_2(b=6,cov=half): #random sample functions
         y = random.uniform(0, 1)
         if y*b <= b*(1-np.linalg.norm(random_unitball,ord=2)**2)**(b-1):
             return np.dot(cov,random_unitball)
-
-def AceeptReject(scale=1,c1=15/(8),power=4): #random sample functions
+            
+def AceeptReject(scale=1,c1=15/(8),power=4):                                        #random sample functions
     while True:
         x = random.uniform(-scale, scale)
         y = random.uniform(0, 1)
@@ -218,7 +218,7 @@ class Kernel:
 
 
 
-#Function of the exploration of UCB algorithm
+                                                                                    #Function of the exploration of UCB algorithm
 def explore(array_count,array_resp,y_new,p_new,length):
     index=np.floor(p_new/length)
     array_count[index]+=1
@@ -243,7 +243,7 @@ data_new=data_new[1:50000,[2,3,4,5]]
 
 mean1=np.mean(data_new,axis=0)
 std1=np.std(data_new,axis=0)
-data_new2=(data_new-mean1)/std1 #preprocessing, standardize
+data_new2=(data_new-mean1)/std1                                         #preprocessing, standardize
 theta=np.array([-0.3676425,2.428852,0.6608713,-0.64923])
 
 
@@ -255,7 +255,7 @@ theta=np.array([-0.3676425,2.428852,0.6608713,-0.64923])
 
 
 solu=Solution()
-#Basic Setups
+                                                                                    #Basic Setups
 T=30000
 reg_Tcum_ucb_acc=np.zeros(30000,dtype=int)
 reg_Tcum_ucb_acc.reshape(1,30000)
@@ -263,41 +263,41 @@ reg_Tcum_ucb_acc.reshape(1,30000)
 for times in range(10):
     reg_ucb=[]
     t=1
-    array_count=np.zeros(10)#Basic setups
+    array_count=np.zeros(10)                                                        #Basic setups, see section 5.2 or 5.3 for more details
     array_resp=np.zeros(10)
     count_bin=10
     length=0.6
     p_t_new=random.uniform(0,6)
     x=data_new2[1,:]
     theta_x=0.3+np.dot(theta,x)
-    v=theta_x+AceeptReject(1,15/8,4) #v_t#
+    v=theta_x+AceeptReject(1,15/8,4)         
     y_t_new=int(int(p_t_new<=v))
     reg_ucb=[]
-    reg_ucb_acc=[] #record regret
-    while t<=T:
+    reg_ucb_acc=[]                                                                     #record regret
+    while t<=T:                                                                     #Begin the Bandit Algorithm
         index=int(np.floor(p_t_new/length))
         array_count[index]+=1.0
         array_resp[index]+=y_t_new
         array_new=np.zeros(10)
         for i in range(10):
             array_new[i]=np.mean(array_resp[i])+np.sqrt(1/(array_count[i]+1))
-        p_t_new=np.argmax(array_new)*length #post price p_t
+        p_t_new=np.argmax(array_new)*length                                                     #post price p_t
         #x=np.array(AcceptReject_2(4,half))
-        x=data_new2[t+1,:] #login new covariate
+        x=data_new2[t+1,:]                                                                      #login new covariate
         theta_x=0.3+np.dot(theta,x)
         v=theta_x+AceeptReject(1,15/8,4)
         y_t_new=int(int(p_t_new<=v))
-        true=solu.phi_root(-0.49,0.49,theta_x) #optimal price
+        true=solu.phi_root(-0.49,0.49,theta_x)                                                  #optimal price
         op_price=true+theta_x
-        rev_diff=solu.F(op_price,theta_x)-solu.F(p_t_new,theta_x) #revenue difference
+        rev_diff=solu.F(op_price,theta_x)-solu.F(p_t_new,theta_x)                               #revenue difference of bandit algorithm
         #print(rev_diff)
         reg_ucb.append(abs(rev_diff))
         np.savetxt("reg_ucb.csv", np.array(reg_ucb), delimiter=",")
         reg_ucb_acc.append(sum(reg_ucb))
-        np.savetxt("reg_ucb_acc.csv", np.array(reg_ucb_acc), delimiter=",") #regret of bandit algorithm
+        np.savetxt("reg_ucb_acc.csv", np.array(reg_ucb_acc), delimiter=",")                     #regret of bandit algorithm
         t=t+1
 
-    #update
+                                                                                                #update accumlated regret
     reg_ucb_acc=np.array(reg_ucb_acc)
     reg_Tcum_ucb_acc=np.vstack([reg_Tcum_ucb_acc,reg_ucb_acc.reshape(1,30000)]) 
     np.savetxt("reg_Tcum_ucb_acc.csv", np.array(reg_Tcum_ucb_acc), delimiter=",")
