@@ -17,7 +17,7 @@ Loan_df1 = Loan_df[row_ind, ]
 # compute theta
 bw <- npindexbw(formula= y ~ price + FICO + loan + onemonth + competition,
                 data = Loan_df1, method = 'ichimura')
-model <- npindex(bws=bw, gradients=TRUE)#theta
+model <- npindex(bws=bw, gradients=TRUE)#model
 #g = model$grad
 #g1 = (g - mean(g))/sd(g)
 #hist(g1, breaks = 10, freq = F)
